@@ -1,0 +1,23 @@
+{
+	"required": true,
+	"package": "com.armaninyow.dibs.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"BlockItemMixin",
+		"BlockBreakMixin",
+		"EntityAccessor",
+		"ServerWorldStatusMixin",
+		"VillagerJobSiteMixin",
+		"VillagerInteractionMixin"
+	],
+	"client": [
+		"client.ClientWorldParticleMixin",
+		"client.ParticleManagerMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

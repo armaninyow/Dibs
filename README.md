@@ -50,7 +50,7 @@ In vanilla Minecraft, villager workstation assignment is entirely random. Any un
     * [Mod Menu](https://modrinth.com/mod/modmenu) (Recommended for configuration)
 
 ### Steps
-1. Download the latest `.jar` from [Modrinth](https://modrinth.com/mod/dibs) or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/dibs).
+1. Download the latest `.jar` from [Modrinth](https://modrinth.com/mod/dibs!) or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/dibs).
 2. Move the file into your Minecraft `%appdata%/.minecraft/mods` folder.
 3. Launch the game using the Fabric profile.
 </details>

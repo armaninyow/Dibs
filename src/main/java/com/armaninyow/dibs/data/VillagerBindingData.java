@@ -1,49 +1,86 @@
 package com.armaninyow.dibs.data;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtInt;
-import net.minecraft.registry.RegistryWrapper;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Uuids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
 
 public class VillagerBindingData extends PersistentState {
 	private static final String DATA_NAME = "dibs_bindings";
-	
-	// Map: Villager UUID -> Bound Block Position
+
+	// Workstation maps: Villager UUID <-> Bound workstation BlockPos
 	private final Map<UUID, BlockPos> villagerToBlock = new HashMap<>();
-	
-	// Map: Block Position -> Villager UUID
 	private final Map<BlockPos, UUID> blockToVillager = new HashMap<>();
+
+	// Bed maps: Villager UUID <-> Bound bed (HEAD) BlockPos
+	private final Map<UUID, BlockPos> villagerToBed = new HashMap<>();
+	private final Map<BlockPos, UUID> bedToVillager = new HashMap<>();
 
 	public VillagerBindingData() {
 		super();
 	}
 
+	// -------------------------------------------------------------------------
+	// Codec
+	// -------------------------------------------------------------------------
+
+	// A single binding entry: UUID <-> BlockPos
+	private record BindingEntry(UUID uuid, BlockPos pos) {
+		static final Codec<BindingEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Uuids.STRING_CODEC.fieldOf("uuid").forGetter(BindingEntry::uuid),
+				BlockPos.CODEC.fieldOf("pos").forGetter(BindingEntry::pos)
+		).apply(instance, BindingEntry::new));
+	}
+
+	// Full codec for VillagerBindingData
+	static final Codec<VillagerBindingData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			BindingEntry.CODEC.listOf().fieldOf("workstations").forGetter(data ->
+					data.villagerToBlock.entrySet().stream()
+							.map(e -> new BindingEntry(e.getKey(), e.getValue()))
+							.toList()
+			),
+			BindingEntry.CODEC.listOf().fieldOf("beds").forGetter(data ->
+					data.villagerToBed.entrySet().stream()
+							.map(e -> new BindingEntry(e.getKey(), e.getValue()))
+							.toList()
+			)
+	).apply(instance, (workstations, beds) -> {
+		VillagerBindingData d = new VillagerBindingData();
+		for (BindingEntry e : workstations) {
+			d.villagerToBlock.put(e.uuid(), e.pos());
+			d.blockToVillager.put(e.pos(), e.uuid());
+		}
+		for (BindingEntry e : beds) {
+			d.villagerToBed.put(e.uuid(), e.pos());
+			d.bedToVillager.put(e.pos(), e.uuid());
+		}
+		return d;
+	}));
+
 	public static VillagerBindingData get(World world) {
 		if (!(world instanceof ServerWorld serverWorld)) {
 			return null;
 		}
-		
-		// Use the Codec constructor - Codec.unit creates a codec that always returns the same value
-		Codec<VillagerBindingData> codec = Codec.unit(VillagerBindingData::new);
-		
-		PersistentStateType<VillagerBindingData> type = new PersistentStateType<VillagerBindingData>(
-			DATA_NAME,
-			VillagerBindingData::new,
-			codec,
-			null
+
+		PersistentStateType<VillagerBindingData> type = new PersistentStateType<>(
+				DATA_NAME,
+				VillagerBindingData::new,
+				VillagerBindingData.CODEC,
+				null
 		);
-		
+
 		return serverWorld.getPersistentStateManager().getOrCreate(type);
 	}
+
+	// -------------------------------------------------------------------------
+	// Workstation binding
+	// -------------------------------------------------------------------------
 
 	public void bindVillagerToBlock(UUID villagerUuid, BlockPos blockPos) {
 		// Remove old binding if exists
@@ -51,7 +88,7 @@ public class VillagerBindingData extends PersistentState {
 			BlockPos oldPos = villagerToBlock.get(villagerUuid);
 			blockToVillager.remove(oldPos);
 		}
-		
+
 		// Create new binding
 		villagerToBlock.put(villagerUuid, blockPos);
 		blockToVillager.put(blockPos, villagerUuid);
@@ -90,43 +127,52 @@ public class VillagerBindingData extends PersistentState {
 		return villagerToBlock.containsKey(villagerUuid);
 	}
 
-	public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-		NbtCompound bindings = new NbtCompound();
-		
-		for (Map.Entry<UUID, BlockPos> entry : villagerToBlock.entrySet()) {
-			BlockPos pos = entry.getValue();
-			NbtCompound posNbt = new NbtCompound();
-			posNbt.putInt("x", pos.getX());
-			posNbt.putInt("y", pos.getY());
-			posNbt.putInt("z", pos.getZ());
-			bindings.put(entry.getKey().toString(), posNbt);
+	// -------------------------------------------------------------------------
+	// Bed binding
+	// -------------------------------------------------------------------------
+
+	public void bindVillagerToBed(UUID villagerUuid, BlockPos headPos) {
+		// Remove old bed binding if exists
+		if (villagerToBed.containsKey(villagerUuid)) {
+			BlockPos oldPos = villagerToBed.get(villagerUuid);
+			bedToVillager.remove(oldPos);
 		}
-		
-		nbt.put("bindings", bindings);
-		return nbt;
+
+		// Create new binding
+		villagerToBed.put(villagerUuid, headPos);
+		bedToVillager.put(headPos, villagerUuid);
+		markDirty();
 	}
 
-	public static VillagerBindingData fromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-		VillagerBindingData data = new VillagerBindingData();
-		
-		if (nbt.contains("bindings")) {
-			NbtCompound bindings = (NbtCompound) nbt.get("bindings");
-			for (String key : bindings.getKeys()) {
-				try {
-					UUID villagerUuid = UUID.fromString(key);
-					NbtCompound posNbt = (NbtCompound) bindings.get(key);
-					int x = ((NbtInt) posNbt.get("x")).intValue();
-					int y = ((NbtInt) posNbt.get("y")).intValue();
-					int z = ((NbtInt) posNbt.get("z")).intValue();
-					BlockPos pos = new BlockPos(x, y, z);
-					data.villagerToBlock.put(villagerUuid, pos);
-					data.blockToVillager.put(pos, villagerUuid);
-				} catch (Exception e) {
-					// Skip invalid UUID or data
-				}
-			}
+	public void unbindBed(UUID villagerUuid) {
+		if (villagerToBed.containsKey(villagerUuid)) {
+			BlockPos pos = villagerToBed.remove(villagerUuid);
+			bedToVillager.remove(pos);
+			markDirty();
 		}
-		
-		return data;
+	}
+
+	public void unbindBedBlock(BlockPos headPos) {
+		if (bedToVillager.containsKey(headPos)) {
+			UUID villagerUuid = bedToVillager.remove(headPos);
+			villagerToBed.remove(villagerUuid);
+			markDirty();
+		}
+	}
+
+	public UUID getBedVillager(BlockPos headPos) {
+		return bedToVillager.get(headPos);
+	}
+
+	public BlockPos getBedForVillager(UUID villagerUuid) {
+		return villagerToBed.get(villagerUuid);
+	}
+
+	public boolean isBedBound(BlockPos headPos) {
+		return bedToVillager.containsKey(headPos);
+	}
+
+	public boolean isVillagerBedBound(UUID villagerUuid) {
+		return villagerToBed.containsKey(villagerUuid);
 	}
 }

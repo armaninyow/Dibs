@@ -1,6 +1,7 @@
 package com.armaninyow.dibs.mixin;
 
 import com.armaninyow.dibs.data.VillagerBindingData;
+import com.armaninyow.dibs.util.BedHelper;
 import com.armaninyow.dibs.util.WorkstationHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -21,15 +22,29 @@ public class BlockBreakMixin {
 			return;
 		}
 
-		// Check if this is a workstation block
-		if (!WorkstationHelper.isWorkstationBlock(state.getBlock())) {
+		VillagerBindingData data = VillagerBindingData.get(world);
+		if (data == null) {
 			return;
 		}
 
-		// Remove binding if it exists
-		VillagerBindingData data = VillagerBindingData.get(world);
-		if (data != null) {
+		// Handle workstation block break
+		if (WorkstationHelper.isWorkstationBlock(state.getBlock())) {
 			data.unbindBlock(pos);
+			return;
+		}
+
+		// Handle bed block break — check both HEAD and FOOT positions
+		// The binding is stored under the HEAD pos; when breaking the FOOT,
+		// we need to find and clear the binding under the HEAD.
+		if (BedHelper.isBedBlock(state.getBlock())) {
+			if (BedHelper.isBedHead(state)) {
+				// Breaking the head directly
+				data.unbindBedBlock(pos);
+			} else {
+				// Breaking the foot — find the head neighbor and unbind it
+				BlockPos headPos = BedHelper.findHeadPos(world, pos);
+				data.unbindBedBlock(headPos);
+			}
 		}
 	}
 }

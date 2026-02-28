@@ -1,6 +1,7 @@
 package com.armaninyow.dibs.mixin;
 
 import com.armaninyow.dibs.event.PlayerInteractionHandler;
+import com.armaninyow.dibs.util.BedHelper;
 import com.armaninyow.dibs.util.WorkstationHelper;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,8 +21,11 @@ public class VillagerInteractionMixin {
 		VillagerEntity villager = (VillagerEntity) (Object) this;
 		ItemStack heldItem = player.getStackInHand(hand);
 
-		// Only intercept when holding a workstation item
-		if (!WorkstationHelper.isWorkstationItem(heldItem)) {
+		boolean isWorkstation = WorkstationHelper.isWorkstationItem(heldItem);
+		boolean isBed = BedHelper.isBedItem(heldItem);
+
+		// Only intercept when holding a workstation or bed item
+		if (!isWorkstation && !isBed) {
 			return;
 		}
 
@@ -29,7 +33,11 @@ public class VillagerInteractionMixin {
 				.map(k -> k.getValue().getPath().equals("none"))
 				.orElse(false);
 
-		if (isUnemployed) {
+		// Bed binding works on any villager (not just unemployed)
+		// Workstation binding only works on unemployed villagers
+		boolean shouldIntercept = isBed || isUnemployed;
+
+		if (shouldIntercept) {
 			// Cancel vanilla FIRST (prevents head-shake and "no" sound regardless of stack size)
 			// Then run our binding logic directly
 			ActionResult result = PlayerInteractionHandler.onUseEntity(

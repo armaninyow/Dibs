@@ -6,7 +6,9 @@
 		"BlockItemMixin",
 		"BlockBreakMixin",
 		"EntityAccessor",
+		"PointOfInterestStorageMixin",
 		"ServerWorldStatusMixin",
+		"VillagerBedMixin",
 		"VillagerJobSiteMixin",
 		"VillagerInteractionMixin"
 	],

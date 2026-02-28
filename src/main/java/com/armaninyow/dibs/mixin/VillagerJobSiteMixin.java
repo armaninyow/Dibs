@@ -2,6 +2,7 @@ package com.armaninyow.dibs.mixin;
 
 import com.armaninyow.dibs.data.VillagerBindingData;
 import com.armaninyow.dibs.network.NetworkHandler;
+import com.armaninyow.dibs.util.VillagerPoiContext;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -68,13 +69,17 @@ public class VillagerJobSiteMixin {
 
 	@SuppressWarnings("deprecation")
 	@Inject(method = "tick", at = @At("HEAD"))
-	private void onTick(CallbackInfo ci) {
+	private void onTickHead(CallbackInfo ci) {
 		VillagerEntity villager = (VillagerEntity) (Object) this;
 		World w = ((EntityAccessor) villager).getWorld();
 
 		if (!(w instanceof ServerWorld world)) {
 			return;
 		}
+
+		// Publish this villager's identity so PointOfInterestStorageMixin can
+		// filter bound POIs from the brain task's scan results during this tick.
+		VillagerPoiContext.set(villager.getUuid(), world);
 
 		VillagerBindingData data = VillagerBindingData.get(world);
 		if (data == null) {
@@ -122,5 +127,13 @@ public class VillagerJobSiteMixin {
 				villager.getBrain().remember(MemoryModuleType.JOB_SITE, globalPos);
 			}
 		}
+	}
+
+	@SuppressWarnings("deprecation")
+	@Inject(method = "tick", at = @At("RETURN"))
+	private void onTickReturn(CallbackInfo ci) {
+		// Always clear the context when tick() exits, whether normally or via early
+		// return — RETURN fires at every exit point including early returns.
+		VillagerPoiContext.clear();
 	}
 }

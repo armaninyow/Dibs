@@ -4,6 +4,7 @@ import com.armaninyow.dibs.Dibs;
 import com.armaninyow.dibs.config.DibsConfig;
 import com.armaninyow.dibs.data.VillagerBindingData;
 import com.armaninyow.dibs.mixin.EntityAccessor;
+import com.armaninyow.dibs.util.BedHelper;
 import com.armaninyow.dibs.util.WorkstationHelper;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -96,18 +97,25 @@ public class NetworkHandler {
 
 		Dibs.LOGGER.info("Block at pos: {}", block);
 
-		if (!WorkstationHelper.isWorkstationBlock(block)) {
-			Dibs.LOGGER.info("Block is not a workstation");
-			return;
-		}
-
 		VillagerBindingData data = VillagerBindingData.get(world);
 		if (data == null) {
 			Dibs.LOGGER.info("No binding data found");
 			return;
 		}
 
-		UUID villagerUuid = data.getVillagerForBlock(blockPos);
+		UUID villagerUuid = null;
+
+		if (WorkstationHelper.isWorkstationBlock(block)) {
+			villagerUuid = data.getVillagerForBlock(blockPos);
+		} else if (BedHelper.isBedBlock(block)) {
+			// The binding is stored under the HEAD position; handle both parts
+			BlockPos headPos = BedHelper.isBedHead(state) ? blockPos : BedHelper.findHeadPos(world, blockPos);
+			villagerUuid = data.getBedVillager(headPos);
+		} else {
+			Dibs.LOGGER.info("Block is not a workstation or bed");
+			return;
+		}
+
 		Dibs.LOGGER.info("Villager UUID for block: {}", villagerUuid);
 
 		if (villagerUuid == null) {

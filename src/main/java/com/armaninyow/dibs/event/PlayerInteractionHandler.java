@@ -3,6 +3,7 @@ package com.armaninyow.dibs.event;
 import com.armaninyow.dibs.Dibs;
 import com.armaninyow.dibs.config.DibsConfig;
 import com.armaninyow.dibs.data.VillagerBindingData;
+import com.armaninyow.dibs.util.BedHelper;
 import com.armaninyow.dibs.util.ItemNbtHelper;
 import com.armaninyow.dibs.util.WorkstationHelper;
 import net.minecraft.entity.Entity;
@@ -34,6 +35,13 @@ public class PlayerInteractionHandler {
 
 		ItemStack heldItem = player.getStackInHand(hand);
 
+		if (BedHelper.isBedItem(heldItem)) {
+			// Bed binding works on any villager
+			Dibs.LOGGER.info("Starting bed binding ritual for villager {}", villager.getUuid());
+			performBinding(player, world, hand, villager, heldItem, true);
+			return ActionResult.SUCCESS;
+		}
+
 		if (!WorkstationHelper.isWorkstationItem(heldItem)) {
 			return ActionResult.PASS;
 		}
@@ -43,15 +51,15 @@ public class PlayerInteractionHandler {
 				.orElse(false);
 
 		if (isUnemployed) {
-			Dibs.LOGGER.info("Starting binding ritual for villager {}", villager.getUuid());
-			performBinding(player, world, hand, villager, heldItem);
+			Dibs.LOGGER.info("Starting workstation binding ritual for villager {}", villager.getUuid());
+			performBinding(player, world, hand, villager, heldItem, false);
 			return ActionResult.SUCCESS;
 		}
 
 		return ActionResult.PASS;
 	}
 
-	private static void performBinding(PlayerEntity player, World world, Hand hand, VillagerEntity villager, ItemStack heldItem) {
+	private static void performBinding(PlayerEntity player, World world, Hand hand, VillagerEntity villager, ItemStack heldItem, boolean isBed) {
 		ServerWorld serverWorld = (ServerWorld) world;
 		VillagerBindingData data = VillagerBindingData.get(world);
 
@@ -75,8 +83,12 @@ public class PlayerInteractionHandler {
 			player.dropItem(boundItem, false);
 		}
 
-		// Clear any previous binding for this villager
-		data.unbindVillager(villager.getUuid());
+		// Clear any previous binding for this villager (workstation or bed)
+		if (isBed) {
+			data.unbindBed(villager.getUuid());
+		} else {
+			data.unbindVillager(villager.getUuid());
+		}
 
 		// Spawn happy particles for configured duration
 		int durationTicks = DibsConfig.INSTANCE.particleDurationSeconds * 20;
@@ -92,7 +104,7 @@ public class PlayerInteractionHandler {
 				1.0F
 		);
 
-		Dibs.LOGGER.info("Bound villager {} to workstation item", villager.getUuid());
+		Dibs.LOGGER.info("Bound villager {} to {} item", villager.getUuid(), isBed ? "bed" : "workstation");
 	}
 
 	private static void spawnHappyParticles(ServerWorld world, VillagerEntity villager, int durationTicks) {

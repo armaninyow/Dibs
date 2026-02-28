@@ -10,7 +10,7 @@
 	"contact": {
 		"homepage": "https://modrinth.com/mod/dibs",
 		"sources": "https://github.com/armaninyow/Dibs",
-		"issues": "https://github.com/armaninyow/Dibs/issues"
+		"issues": "https://github.com/armaninyow/Dibs/discussions/categories/issues"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/dibs/icon.png",

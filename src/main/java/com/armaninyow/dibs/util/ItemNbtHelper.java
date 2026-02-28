@@ -27,7 +27,7 @@ public class ItemNbtHelper {
 		
 		// Store villager's profession name for display using registry key
 		String professionName = villager.getVillagerData().profession().getKey()
-				.map(k -> k.getValue().getPath())
+				.map(k -> k.getValue().getPath().equals("none") ? "villager" : k.getValue().getPath())
 				.orElse("villager");
 		nbt.putString(VILLAGER_NAME_KEY, professionName);
 		

@@ -15,12 +15,14 @@ A lightweight mod that lets you permanently bind villagers to workstation blocks
   
 When you hold a stack of workstation items (e.g. a composter, lectern, or blast furnace) and right-click an unemployed villager, a short binding ritual begins. The villager is bound to that item. When you then place the workstation block, it is permanently reserved for that villager. No other villager can claim it, walk toward it, or gain a profession from it.
 
+The same system applies to beds. Hold any bed and right-click any villager, employed or not, to bind them to it. When you place the bed, it is permanently reserved for that villager. No other villager can claim it or walk toward it.
+
 Key behaviors:
-- Bound workstations are exclusively claimed by their assigned villager
-- Other villagers are blocked from claiming or gaining a profession from a bound block
-- Breaking the workstation automatically removes the binding
-- The correct villager is guided to their workstation and gains their profession normally
-- Press **V** while looking at a bound workstation to make its villager glow so you can find them
+- Bound workstations and beds are exclusively claimed by their assigned villager
+- Other villagers are blocked from walking toward or claiming any bound block or bed
+- Breaking a bound workstation or either half of a bound bed automatically removes the binding
+- The correct villager is guided to their workstation and bed normally
+- Press **V** while looking at a bound workstation or bed to make its villager glow so you can find them
 - Bindings persist through server restarts, chunk unloads, and world reloads
 </details>
 
@@ -28,11 +30,13 @@ Key behaviors:
 <details>
   <summary></summary>
    
-In vanilla Minecraft, villager workstation assignment is entirely random. Any unemployed villager can steal any unclaimed workstation, making it frustrating to set up organized trading halls or dedicated profession setups. Dibs! solves this completely by letting you choose exactly which villager gets which workstation. No more accidental profession swaps, no more fighting over blocks.
+In vanilla Minecraft, villager workstation and bed assignment is entirely random. Any unemployed villager can steal any unclaimed workstation, and any villager can claim any nearby bed, making it frustrating to set up organized trading halls or dedicated profession setups. Dibs! solves this completely by letting you choose exactly which villager gets which workstation and which bed. No more accidental profession swaps, no more fighting over blocks.
 
 - **Deterministic profession assignment**: You decide who gets what, every time
-- **Protected workstations**: Other villagers cannot gain a profession from a bound workstation or show any claiming behavior. They may still briefly approach it, but will be silently evicted with no visible effects.
+- **Protected workstations**: Other villagers cannot gain a profession from a bound workstation or show any claiming behavior
+- **Protected beds**: Other villagers cannot claim a bound bed or walk toward it
 - **Works with any workstation**: Supports all vanilla job site blocks
+- **Works with any bed**: Supports all 16 bed colors
 - **Persistent**: Bindings survive restarts and chunk unloads
 - **Multiplayer friendly**: Bindings are per-world and shared across all players on the server
 </details>

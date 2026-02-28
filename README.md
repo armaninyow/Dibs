@@ -7,7 +7,7 @@
 A lightweight mod that lets you permanently bind villagers to workstation blocks, preventing other villagers from claiming them.
 </details>
 
-![Mod Icon]()
+![Mod Icon](https://raw.githubusercontent.com/armaninyow/Dibs/refs/heads/1.21.10/src/main/resources/assets/dibs/icon.png)
 
 ## Functionality
 <details>

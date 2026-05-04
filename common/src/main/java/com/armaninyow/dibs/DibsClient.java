@@ -1,9 +1,11 @@
 package com.armaninyow.dibs;
 
+import com.armaninyow.dibs.client.ParticleTrailRenderer;
 import com.armaninyow.dibs.data.ClientBindingCache;
 import com.armaninyow.dibs.event.ClientTickHandler;
 import com.armaninyow.dibs.keybind.DibsKeybinds;
 import com.armaninyow.dibs.network.NetworkHandler;
+import com.armaninyow.dibs.network.VillagerBlockResponsePayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -25,6 +27,19 @@ public class DibsClient implements ClientModInitializer {
 						ClientBindingCache.markWrongClaimant(payload.villagerUuid());
 					} else {
 						ClientBindingCache.clearWrongClaimant(payload.villagerUuid());
+					}
+				}
+		);
+
+		// Register client-side packet handler for villager block trail response
+		ClientPlayNetworking.registerGlobalReceiver(
+				VillagerBlockResponsePayload.ID,
+				(payload, context) -> {
+					if (payload.workstationPos() != null) {
+						ParticleTrailRenderer.drawTrailToBlock(payload.villagerUuid(), payload.workstationPos());
+					}
+					if (payload.bedPos() != null) {
+						ParticleTrailRenderer.drawTrailToBlock(payload.villagerUuid(), payload.bedPos());
 					}
 				}
 		);

@@ -5,11 +5,16 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class WorkstationHelper {
 	private static final Set<Block> WORKSTATION_BLOCKS = new HashSet<>();
+
+	// Maps vanilla profession path (e.g. "fletcher") to its job site block
+	private static final Map<String, Block> PROFESSION_TO_BLOCK = new HashMap<>();
 
 	static {
 		// Add all vanilla workstation blocks
@@ -29,6 +34,21 @@ public class WorkstationHelper {
 		WORKSTATION_BLOCKS.add(Blocks.LOOM);
 		WORKSTATION_BLOCKS.add(Blocks.SMITHING_TABLE);
 		WORKSTATION_BLOCKS.add(Blocks.STONECUTTER);
+
+		// Vanilla profession -> job site block mappings
+		PROFESSION_TO_BLOCK.put("armorer",        Blocks.BLAST_FURNACE);
+		PROFESSION_TO_BLOCK.put("butcher",         Blocks.SMOKER);
+		PROFESSION_TO_BLOCK.put("cleric",          Blocks.BREWING_STAND);
+		PROFESSION_TO_BLOCK.put("cartographer",    Blocks.CARTOGRAPHY_TABLE);
+		PROFESSION_TO_BLOCK.put("leatherworker",   Blocks.CAULDRON);
+		PROFESSION_TO_BLOCK.put("farmer",          Blocks.COMPOSTER);
+		PROFESSION_TO_BLOCK.put("fisherman",       Blocks.BARREL);
+		PROFESSION_TO_BLOCK.put("fletcher",        Blocks.FLETCHING_TABLE);
+		PROFESSION_TO_BLOCK.put("weaponsmith",     Blocks.GRINDSTONE);
+		PROFESSION_TO_BLOCK.put("librarian",       Blocks.LECTERN);
+		PROFESSION_TO_BLOCK.put("shepherd",        Blocks.LOOM);
+		PROFESSION_TO_BLOCK.put("toolsmith",       Blocks.SMITHING_TABLE);
+		PROFESSION_TO_BLOCK.put("mason",           Blocks.STONECUTTER);
 	}
 
 	public static boolean isWorkstationBlock(Block block) {
@@ -39,7 +59,6 @@ public class WorkstationHelper {
 		if (stack.isEmpty()) {
 			return false;
 		}
-		
 		Item item = stack.getItem();
 		Block block = Block.getBlockFromItem(item);
 		return isWorkstationBlock(block);
@@ -50,5 +69,22 @@ public class WorkstationHelper {
 			return null;
 		}
 		return Block.getBlockFromItem(stack.getItem());
+	}
+
+	/**
+	 * Returns true if the given block is the correct job site for the given
+	 * profession path (e.g. "fletcher" -> FLETCHING_TABLE).
+	 * Leatherworker is a special case: any cauldron variant is valid.
+	 */
+	public static boolean isMatchingWorkstation(Block block, String professionPath) {
+		if (professionPath == null || professionPath.equals("none")) return false;
+		if ("leatherworker".equals(professionPath)) {
+			return block == Blocks.CAULDRON
+					|| block == Blocks.WATER_CAULDRON
+					|| block == Blocks.LAVA_CAULDRON
+					|| block == Blocks.POWDER_SNOW_CAULDRON;
+		}
+		Block expected = PROFESSION_TO_BLOCK.get(professionPath);
+		return expected != null && expected == block;
 	}
 }

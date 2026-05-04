@@ -19,6 +19,13 @@ If you encounter bugs or wish to contribute:
 <details>
   <summary></summary>
    
+### 3.1.0—1.21.x
+* Added support for binding already-traded, employed villagers to their matching workstation block
+* Added the ability to press V while looking at a bound villager to draw a trail of white particles from the villager to their bound workstation and/or bed
+* Split 1.21.5-1.21.11 into two separate version ranges to account for API differences between versions
+* Merged 1.21-1.21.4 into a single version range due to shared rendering API compatibility
+* Fixed a crash on 1.21.2-1.21.3 caused by a packet codec API that was not available until 1.21.4
+* Fixed a crash on 1.21.5–1.21.8 caused by a keybinding API that was not available until 1.21.9
 ### 3.0.0—1.21.x
 * Added multi-version support covering Minecraft 1.21 through 1.21.11
 ### 2.0.0—1.21.11

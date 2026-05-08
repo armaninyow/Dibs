@@ -19,6 +19,8 @@ If you encounter bugs or wish to contribute:
 <details>
   <summary></summary>
    
+### 3.1.1—1.21.x
+* Fixed a crash that occurred when ticking villagers on 1.21.10
 ### 3.1.0—1.21.x
 * Added support for binding already-traded, employed villagers to their matching workstation block
 * Added the ability to press V while looking at a bound villager to draw a trail of white particles from the villager to their bound workstation and/or bed

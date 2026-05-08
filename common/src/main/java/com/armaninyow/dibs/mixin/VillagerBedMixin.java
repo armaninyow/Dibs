@@ -19,6 +19,8 @@ import java.util.UUID;
 @Mixin(VillagerEntity.class)
 public class VillagerBedMixin {
 
+	private int dibs_bedTickCounter = 0;
+
 	@SuppressWarnings("deprecation")
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void onTickBedHead(CallbackInfo ci) {
@@ -63,7 +65,7 @@ public class VillagerBedMixin {
 		}
 
 		// GUIDANCE: runs every 20 ticks
-		if (world.getTime() % 20 != 0) {
+		if (++dibs_bedTickCounter % 20 != 0) {
 			return;
 		}
 

@@ -22,6 +22,8 @@ import java.util.UUID;
 @Mixin(value = VillagerEntity.class, priority = 1000)
 public class VillagerJobSiteMixin {
 
+	private int dibs_jobTickCounter = 0;
+
 	@SuppressWarnings("deprecation")
 	@Inject(method = "setVillagerData", at = @At("HEAD"), cancellable = true)
 	private void onSetVillagerData(VillagerData data, CallbackInfo ci) {
@@ -82,7 +84,7 @@ public class VillagerJobSiteMixin {
 			}
 		}
 
-		if (world.getTime() % 20 != 0) return;
+		if (++dibs_jobTickCounter % 20 != 0) return;
 
 		// Throttled: evict wrong claimant walking TOWARD a bound workstation
 		Optional<GlobalPos> potentialOpt = villager.getBrain().getOptionalMemory(MemoryModuleType.POTENTIAL_JOB_SITE);

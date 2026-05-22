@@ -3,7 +3,7 @@ package com.armaninyow.dibs;
 import com.armaninyow.dibs.config.DibsConfig;
 import com.armaninyow.dibs.network.NetworkHandler;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,19 +12,14 @@ public class Dibs implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static Identifier id(String path) {
-		return Identifier.of(MOD_ID, path);
+		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}
 
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Initializing Dibs mod!");
-		
-		// Load config
 		DibsConfig.load();
-		
-		// Register network packets
 		NetworkHandler.registerServerReceivers();
-		
 		LOGGER.info("Dibs mod initialized successfully!");
 	}
 }

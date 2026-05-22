@@ -13,13 +13,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 public class DibsClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
-		// Register keybinds
 		DibsKeybinds.register();
 
-		// Register client tick handler for keybind processing
 		ClientTickEvents.END_CLIENT_TICK.register(ClientTickHandler::onClientTick);
 
-		// Register client-side packet handler for wrong claimant suppression
 		ClientPlayNetworking.registerGlobalReceiver(
 				NetworkHandler.WrongClaimantPayload.ID,
 				(payload, context) -> {
@@ -31,7 +28,6 @@ public class DibsClient implements ClientModInitializer {
 				}
 		);
 
-		// Register client-side packet handler for villager block trail response
 		ClientPlayNetworking.registerGlobalReceiver(
 				VillagerBlockResponsePayload.ID,
 				(payload, context) -> {

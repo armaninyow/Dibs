@@ -1,24 +1,23 @@
 package com.armaninyow.dibs.network;
 
 import com.armaninyow.dibs.Dibs;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record LocateOwnerPayload(BlockPos blockPos) implements CustomPayload {
-	public static final CustomPayload.Id<LocateOwnerPayload> ID = 
-			new CustomPayload.Id<>(Dibs.id("locate_owner"));
-	
-	public static final PacketCodec<RegistryByteBuf, LocateOwnerPayload> CODEC = 
-			PacketCodec.tuple(
-					BlockPos.PACKET_CODEC, LocateOwnerPayload::blockPos,
+public record LocateOwnerPayload(BlockPos blockPos) implements CustomPacketPayload {
+	public static final CustomPacketPayload.Type<LocateOwnerPayload> ID =
+			new CustomPacketPayload.Type<>(Dibs.id("locate_owner"));
+
+	public static final StreamCodec<RegistryFriendlyByteBuf, LocateOwnerPayload> CODEC =
+			StreamCodec.composite(
+					BlockPos.STREAM_CODEC, LocateOwnerPayload::blockPos,
 					LocateOwnerPayload::new
 			);
 
 	@Override
-	public CustomPayload.Id<? extends CustomPayload> getId() {
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
 		return ID;
 	}
 }

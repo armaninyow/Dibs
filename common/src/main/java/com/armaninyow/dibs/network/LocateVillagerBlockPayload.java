@@ -1,27 +1,25 @@
 package com.armaninyow.dibs.network;
 
 import com.armaninyow.dibs.Dibs;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 import java.util.UUID;
 
-public record LocateVillagerBlockPayload(UUID villagerUuid) implements CustomPayload {
-	public static final CustomPayload.Id<LocateVillagerBlockPayload> ID =
-			new CustomPayload.Id<>(Dibs.id("locate_villager_block"));
+public record LocateVillagerBlockPayload(UUID villagerUuid) implements CustomPacketPayload {
+	public static final CustomPacketPayload.Type<LocateVillagerBlockPayload> ID =
+			new CustomPacketPayload.Type<>(Dibs.id("locate_villager_block"));
 
-	public static final PacketCodec<RegistryByteBuf, LocateVillagerBlockPayload> CODEC =
-			PacketCodec.of(
-					(value, buf) -> {
-						buf.writeLong(value.villagerUuid().getMostSignificantBits());
-						buf.writeLong(value.villagerUuid().getLeastSignificantBits());
-					},
-					buf -> new LocateVillagerBlockPayload(new UUID(buf.readLong(), buf.readLong()))
+	public static final StreamCodec<RegistryFriendlyByteBuf, LocateVillagerBlockPayload> CODEC =
+			StreamCodec.composite(
+					UUIDUtil.STREAM_CODEC, LocateVillagerBlockPayload::villagerUuid,
+					LocateVillagerBlockPayload::new
 			);
 
 	@Override
-	public CustomPayload.Id<? extends CustomPayload> getId() {
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
 		return ID;
 	}
 }

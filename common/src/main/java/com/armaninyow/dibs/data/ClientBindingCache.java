@@ -4,10 +4,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Client-side cache of villager UUIDs that are wrong claimants of bound blocks.
- * Entries auto-expire after 2 seconds of no refresh.
- */
 public class ClientBindingCache {
 
 	private static final long EXPIRY_MS = 2000;

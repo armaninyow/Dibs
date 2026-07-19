@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "dibs",
+	"version": "${version}",
+	"name": "Dibs!",
+	"description": "A direct binding system between players, villagers, and workstation blocks",
+	"authors": [
+		"Armaninyow"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/dibs",
+		"sources": "https://github.com/armaninyow/Dibs",
+		"issues": "https://github.com/armaninyow/Dibs/discussions/categories/issues"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/dibs/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.armaninyow.dibs.Dibs"
+		],
+		"client": [
+			"com.armaninyow.dibs.DibsClient"
+		],
+		"modmenu": [
+			"com.armaninyow.dibs.config.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"dibs.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.6",
+		"minecraft": ">=26 <26.3",
+		"java": ">=25",
+		"fabric-api": "*",
+		"yet_another_config_lib_v3": "*",
+		"modmenu": "*"
+	}
+}

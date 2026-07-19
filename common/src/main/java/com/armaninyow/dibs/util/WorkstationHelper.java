@@ -13,7 +13,6 @@ import java.util.Set;
 public class WorkstationHelper {
 	private static final Set<Block> WORKSTATION_BLOCKS = new HashSet<>();
 
-	// Maps vanilla profession path (e.g. "fletcher") to its job site block
 	private static final Map<String, Block> PROFESSION_TO_BLOCK = new HashMap<>();
 
 	static {
